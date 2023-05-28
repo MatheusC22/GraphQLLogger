@@ -1,0 +1,18 @@
+type Endpoint {
+  endpoint_id:ID!
+  endpoint_name:String!
+  entries:Int!
+}
+
+type Query {
+  endpoints: [Endpoint!]!
+  endpoint(endpoint_name: String!):Endpoint! 
+}
+
+input updateEndpointinput{
+  endpoint_name:String
+}
+
+type Mutation {
+  updateEndpoint(input:updateEndpointinput):Endpoint
+}

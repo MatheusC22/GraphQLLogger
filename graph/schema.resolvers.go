@@ -12,7 +12,7 @@ import (
 
 // UpdateEndpoint is the resolver for the updateEndpoint field.
 func (r *mutationResolver) UpdateEndpoint(ctx context.Context, input *model.UpdateEndpointinput) (*model.Endpoint, error) {
-	return database.UpdateEndpoint(*input.EndpointName), nil
+	return database.UpdateEndpoint(*input.EndpointName, *input.HTTPMethod), nil
 }
 
 // Endpoints is the resolver for the endpoints field.
@@ -21,8 +21,8 @@ func (r *queryResolver) Endpoints(ctx context.Context) ([]*model.Endpoint, error
 }
 
 // Endpoint is the resolver for the endpoint field.
-func (r *queryResolver) Endpoint(ctx context.Context, endpointName string) (*model.Endpoint, error) {
-	return database.GetEndpoint(endpointName), nil
+func (r *queryResolver) Endpoint(ctx context.Context, endpointName string, httpMethod string) (*model.Endpoint, error) {
+	return database.GetEndpoint(endpointName, httpMethod), nil
 }
 
 // Mutation returns MutationResolver implementation.

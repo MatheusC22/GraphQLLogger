@@ -6,11 +6,12 @@ type Endpoint {
 
 type Query {
   endpoints: [Endpoint!]!
-  endpoint(endpoint_name: String!):Endpoint! 
+  endpoint(endpoint_name: String!,http_method:String!):Endpoint! 
 }
 
 input updateEndpointinput{
   endpoint_name:String
+  http_method:String
 }
 
 type Mutation {

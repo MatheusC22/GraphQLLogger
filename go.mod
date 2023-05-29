@@ -5,7 +5,9 @@ go 1.20
 require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/streadway/amqp v1.0.0
 	github.com/vektah/gqlparser/v2 v2.5.1
+	golang.org/x/sync v0.1.0
 )
 
 require (

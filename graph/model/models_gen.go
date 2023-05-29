@@ -10,4 +10,5 @@ type Endpoint struct {
 
 type UpdateEndpointinput struct {
 	EndpointName *string `json:"endpoint_name,omitempty"`
+	HTTPMethod   *string `json:"http_method,omitempty"`
 }

@@ -8,8 +8,25 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type DB struct {
-	conn *sql.DB
+const (
+	_1 = "GET"
+	_2 = "POST"
+	_3 = "DELETE"
+	_4 = "PUT"
+)
+
+func GetHttpMethodID(method string) int {
+	switch method {
+	case _1:
+		return 1
+	case _2:
+		return 2
+	case _3:
+		return 3
+	case _4:
+		return 4
+	}
+	return 0
 }
 
 func OppenConnection() (*sql.DB, error) {
@@ -26,7 +43,7 @@ func OppenConnection() (*sql.DB, error) {
 	return conn, err
 }
 
-func GetEndpoint(endpointName string) *model.Endpoint {
+func GetEndpoint(endpointName string, http_method string) *model.Endpoint {
 	conn, err := OppenConnection()
 	if err != nil {
 		panic(fmt.Errorf(err.Error()))
@@ -35,7 +52,7 @@ func GetEndpoint(endpointName string) *model.Endpoint {
 
 	var endpoint model.Endpoint
 
-	id := GetEndpointID(endpointName)
+	id := GetEndpointID(endpointName, http_method)
 
 	row := conn.QueryRow(fmt.Sprintf("SELECT EndpointID,EndpointName,Entries FROM count_log WHERE EndpointID = '%d'", id))
 
@@ -71,14 +88,14 @@ func GetEndpoints() []*model.Endpoint {
 	return endpoints
 }
 
-func UpdateEndpoint(endpointName string) *model.Endpoint {
+func UpdateEndpoint(endpointName string, http_method string) *model.Endpoint {
 	conn, err := OppenConnection()
 	if err != nil {
 		panic(fmt.Errorf("Error"))
 	}
 	defer conn.Close()
 	var updatedEndpoint model.Endpoint
-	id := GetEndpointID(endpointName)
+	id := GetEndpointID(endpointName, http_method)
 	res, _ := conn.Exec(fmt.Sprintf("UPDATE count_log SET Entries = count_log.entries + 1 WHERE EndpointID = '%d'", id))
 	sucess, _ := res.RowsAffected()
 	if sucess > 0 {
@@ -88,17 +105,17 @@ func UpdateEndpoint(endpointName string) *model.Endpoint {
 	return &updatedEndpoint
 }
 
-func GetEndpointID(name string) (EndpointID int32) {
+func GetEndpointID(name string, http_method string) (EndpointID int32) {
 	conn, err := OppenConnection()
 	if err != nil {
 		panic(fmt.Errorf(err.Error()))
 	}
 	defer conn.Close()
+	method_id := GetHttpMethodID(http_method)
 
-	row := conn.QueryRow(fmt.Sprintf("SELECT EndpointID FROM count_log WHERE EndpointName = '%s'", name))
+	row := conn.QueryRow(fmt.Sprintf("SELECT EndpointID FROM count_log WHERE EndpointName = '%s' AND http_method = '%d'", name, method_id))
 
 	row.Scan(&EndpointID)
 
 	return
-
 }

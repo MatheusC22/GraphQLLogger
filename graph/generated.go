@@ -56,7 +56,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Endpoint  func(childComplexity int, endpointName string) int
+		Endpoint  func(childComplexity int, endpointName string, httpMethod string) int
 		Endpoints func(childComplexity int) int
 	}
 }
@@ -66,7 +66,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Endpoints(ctx context.Context) ([]*model.Endpoint, error)
-	Endpoint(ctx context.Context, endpointName string) (*model.Endpoint, error)
+	Endpoint(ctx context.Context, endpointName string, httpMethod string) (*model.Endpoint, error)
 }
 
 type executableSchema struct {
@@ -127,7 +127,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Endpoint(childComplexity, args["endpoint_name"].(string)), true
+		return e.complexity.Query.Endpoint(childComplexity, args["endpoint_name"].(string), args["http_method"].(string)), true
 
 	case "Query.endpoints":
 		if e.complexity.Query.Endpoints == nil {
@@ -266,6 +266,15 @@ func (ec *executionContext) field_Query_endpoint_args(ctx context.Context, rawAr
 		}
 	}
 	args["endpoint_name"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["http_method"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("http_method"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["http_method"] = arg1
 	return args, nil
 }
 
@@ -565,7 +574,7 @@ func (ec *executionContext) _Query_endpoint(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Endpoint(rctx, fc.Args["endpoint_name"].(string))
+		return ec.resolvers.Query().Endpoint(rctx, fc.Args["endpoint_name"].(string), fc.Args["http_method"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2523,7 +2532,7 @@ func (ec *executionContext) unmarshalInputupdateEndpointinput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"endpoint_name"}
+	fieldsInOrder := [...]string{"endpoint_name", "http_method"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2539,6 +2548,15 @@ func (ec *executionContext) unmarshalInputupdateEndpointinput(ctx context.Contex
 				return it, err
 			}
 			it.EndpointName = data
+		case "http_method":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("http_method"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HTTPMethod = data
 		}
 	}
 

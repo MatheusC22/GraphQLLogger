@@ -105,6 +105,16 @@ func UpdateEndpoint(endpointName string, http_method string) *model.Endpoint {
 	return &updatedEndpoint
 }
 
+func UpdateLight(endpointName string, http_method string) {
+	conn, err := OppenConnection()
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+	id := GetEndpointID(endpointName, http_method)
+	conn.Exec(fmt.Sprintf("UPDATE count_log SET Entries = count_log.entries + 1 WHERE EndpointID = '%d'", id))
+}
+
 func GetEndpointID(name string, http_method string) (EndpointID int32) {
 	conn, err := OppenConnection()
 	if err != nil {
